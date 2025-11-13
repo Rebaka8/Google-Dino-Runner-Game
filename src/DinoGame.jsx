@@ -182,7 +182,7 @@ const DinoGame = () => {
 
   return (
     <div style={{ textAlign: "center", marginTop: 30, userSelect: "none" }}>
-      <h1>Google Dino Runner Clone</h1>
+      <h1>Google Dino Runner Clone - Enhanced Version</h1>
       <canvas
         ref={canvasRef}
         style={{
