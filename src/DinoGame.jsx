@@ -5,12 +5,11 @@ const DinoGame = () => {
   const obstacles = useRef([]);
   const frameCount = useRef(0);
   const speed = useRef(6);
-  const wingFlap = useRef(0); // for pterodactyl wing animation
+  const wingFlap = useRef(0);
 
   const [isGameOver, setIsGameOver] = useState(false);
   const [score, setScore] = useState(0);
 
-  // Dino properties
   const dino = useRef({
     x: 50,
     y: 0,
@@ -29,12 +28,6 @@ const DinoGame = () => {
     ctx.fillRect(dino.x, groundY - dino.height - dino.y, dino.width, dino.height);
     ctx.fillStyle = "#fff";
     ctx.fillRect(dino.x + 30, groundY - dino.height - dino.y + 10, 6, 6);
-
-    // Eye blink animation (simple)
-    if (frameCount.current % 40 < 5) {
-      ctx.fillStyle = "#000";
-      ctx.fillRect(dino.x + 30, groundY - dino.height - dino.y + 10, 6, 2);
-    }
   };
 
   const drawCactus = (ctx, obs) => {
@@ -44,19 +37,16 @@ const DinoGame = () => {
 
   const drawPterodactyl = (ctx, obs) => {
     ctx.fillStyle = "#555";
-
     let wingOffset = wingFlap.current < 15 ? 5 : 0;
     wingFlap.current = (wingFlap.current + 1) % 30;
-
-    // Body
     ctx.fillRect(obs.x, groundY - obs.y - obs.height, obs.width, obs.height * 0.6);
-    // Wings (animated up and down)
     ctx.fillRect(obs.x - wingOffset, groundY - obs.y - obs.height + 5, obs.width + wingOffset, 5);
     ctx.fillRect(obs.x, groundY - obs.y - obs.height + 15, obs.width + wingOffset, 5);
   };
 
   const dinoBottom = (d) => groundY - d.height - d.y;
-  const obstacleTop = (obs) => obs.type === "ptero" ? groundY - obs.y - obs.height : groundY - obs.height;
+  const obstacleTop = (obs) =>
+    obs.type === "ptero" ? groundY - obs.y - obs.height : groundY - obs.height;
 
   const handleJump = () => {
     if (!dino.current.jumping) {
@@ -71,12 +61,12 @@ const DinoGame = () => {
     canvas.width = 800;
     canvas.height = 200;
 
-    const checkCollision = (dino, obstacle) => {
+    const checkCollision = (d, o) => {
       return (
-        dino.x < obstacle.x + obstacle.width &&
-        dino.x + dino.width > obstacle.x &&
-        dinoBottom(dino) < obstacleTop(obstacle) + obstacle.height &&
-        dinoBottom(dino) + dino.height > obstacleTop(obstacle)
+        d.x < o.x + o.width &&
+        d.x + d.width > o.x &&
+        dinoBottom(d) < obstacleTop(o) + o.height &&
+        dinoBottom(d) + d.height > obstacleTop(o)
       );
     };
 
@@ -90,25 +80,25 @@ const DinoGame = () => {
     };
 
     window.addEventListener("keydown", onKeyDown);
-
     let animationFrameId;
+    let lastObstacleFrame = 0;
 
     const resetGame = () => {
       setIsGameOver(false);
       obstacles.current = [];
       frameCount.current = 0;
       speed.current = 6;
+      setScore(0);
       dino.current.y = 0;
       dino.current.velocityY = 0;
       dino.current.jumping = false;
-      setScore(0);
       wingFlap.current = 0;
+      lastObstacleFrame = 0;
       loop();
     };
 
     const loop = () => {
       animationFrameId = requestAnimationFrame(loop);
-
       frameCount.current++;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -120,7 +110,7 @@ const DinoGame = () => {
       ctx.lineTo(canvas.width, groundY);
       ctx.stroke();
 
-      // Dino jump with easing interpolation
+      // Dino jump animation
       if (dino.current.jumping) {
         dino.current.y += dino.current.velocityY;
         dino.current.velocityY -= gravity;
@@ -131,26 +121,27 @@ const DinoGame = () => {
           dino.current.velocityY = 0;
         }
       }
-
       drawDino(ctx, dino.current);
 
-      // Spawn obstacles with varied types every 100 frames with randomness
-      const obstacleSpawnInterval = 100;
-      if (frameCount.current % obstacleSpawnInterval === 0) {
-        const type = Math.random() < 0.6 ? "cactus" : "ptero";
-        obstacles.current.push({
-          type,
-          x: canvas.width,
-          width: type === "cactus" ? 20 + Math.random() * 10 : 40,
-          height: type === "cactus" ? 40 + Math.random() * 20 : 20,
-          y: type === "ptero" ? 50 + Math.random() * 50 : 0, // height for flying obs
-        });
+      // Closer and more frequent obstacles with random spacing
+      if (frameCount.current - lastObstacleFrame >= 50) {
+        const framesSinceLast = frameCount.current - lastObstacleFrame;
+        if (framesSinceLast >= 75 || Math.random() < 0.1) {
+          const type = Math.random() < 0.8 ? "cactus" : "ptero";
+          obstacles.current.push({
+            type,
+            x: canvas.width,
+            width: type === "cactus" ? 20 + Math.random() * 15 : 40,
+            height: type === "cactus" ? 40 + Math.random() * 20 : 20,
+            y: type === "ptero" ? 50 + Math.random() * 50 : 0,
+          });
+          lastObstacleFrame = frameCount.current;
+        }
       }
 
-      // Move and draw obstacles & detect collisions
       obstacles.current.forEach((obs, index) => {
         let obsSpeed = speed.current;
-        if (obs.type === "ptero") obsSpeed *= 1.3; // flying obs faster
+        if (obs.type === "ptero") obsSpeed *= 1.3;
 
         obs.x -= obsSpeed;
 
@@ -168,12 +159,7 @@ const DinoGame = () => {
         }
       });
 
-      if (speed.current < 14) speed.current += 0.002; // slower speed increase
-
-      // Draw score with style
-      ctx.fillStyle = "#222";
-      ctx.font = "20px 'Press Start 2P', cursive";
-      ctx.fillText(`Score: ${score}`, canvas.width - 160, 30);
+      if (speed.current < 14) speed.current += 0.002;
 
       if (isGameOver) {
         ctx.fillStyle = "rgba(0,0,0,0.6)";
@@ -192,17 +178,26 @@ const DinoGame = () => {
       window.removeEventListener("keydown", onKeyDown);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [isGameOver, score]);
+  }, [isGameOver]);
 
   return (
-    <div style={{ textAlign: "center", marginTop: 30 }}>
-      <h1>Google Dino Runner Clone - Enhanced</h1>
+    <div style={{ textAlign: "center", marginTop: 30, userSelect: "none" }}>
+      <h1>Google Dino Runner Clone</h1>
       <canvas
         ref={canvasRef}
-        style={{ border: "3px solid #444", borderRadius: "10px", backgroundColor: "#f7f7f7" }}
+        style={{
+          border: "3px solid #444",
+          borderRadius: "10px",
+          backgroundColor: "#f7f7f7",
+          display: "block",
+          margin: "0 auto",
+        }}
       />
-      <p style={{ marginTop: 15, fontFamily: "'Press Start 2P', cursive", fontSize: 16 }}>
-        Press Space or ↑ to Jump - Avoid Cacti and Flying Pterodactyls!
+      <p style={{ marginTop: 15, fontFamily: "'Press Start 2P', cursive", fontSize: 20 }}>
+        Score: {score}
+      </p>
+      <p style={{ fontFamily: "'Press Start 2P', cursive", fontSize: 16 }}>
+       Press Space or ↑ to leap — stay sharp, the cacti are coming fast!
       </p>
     </div>
   );
