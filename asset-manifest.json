@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/google-dino-game/static/css/main.e6c13ad2.css",
-    "main.js": "/google-dino-game/static/js/main.a3eff71b.js",
-    "static/js/453.9bddd3d7.chunk.js": "/google-dino-game/static/js/453.9bddd3d7.chunk.js",
-    "index.html": "/google-dino-game/index.html",
-    "main.e6c13ad2.css.map": "/google-dino-game/static/css/main.e6c13ad2.css.map",
-    "main.a3eff71b.js.map": "/google-dino-game/static/js/main.a3eff71b.js.map",
-    "453.9bddd3d7.chunk.js.map": "/google-dino-game/static/js/453.9bddd3d7.chunk.js.map"
+    "main.css": "/Google-Dino-Runner-Game/static/css/main.e6c13ad2.css",
+    "main.js": "/Google-Dino-Runner-Game/static/js/main.c2658389.js",
+    "static/js/453.9bddd3d7.chunk.js": "/Google-Dino-Runner-Game/static/js/453.9bddd3d7.chunk.js",
+    "index.html": "/Google-Dino-Runner-Game/index.html",
+    "main.e6c13ad2.css.map": "/Google-Dino-Runner-Game/static/css/main.e6c13ad2.css.map",
+    "main.c2658389.js.map": "/Google-Dino-Runner-Game/static/js/main.c2658389.js.map",
+    "453.9bddd3d7.chunk.js.map": "/Google-Dino-Runner-Game/static/js/453.9bddd3d7.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.e6c13ad2.css",
-    "static/js/main.a3eff71b.js"
+    "static/js/main.c2658389.js"
   ]
 }
