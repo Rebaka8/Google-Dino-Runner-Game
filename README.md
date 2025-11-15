@@ -2,6 +2,10 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+### Live Demo
+
+[Click here to try the app!](https://rebaka8.github.io/Google-Dino-Runner-Game/)
+
 ## Available Scripts
 
 In the project directory, you can run:
